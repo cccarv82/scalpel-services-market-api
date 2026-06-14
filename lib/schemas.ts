@@ -61,3 +61,23 @@ export const listQuerySchema = z.object({
 })
 
 export const MAX_ACTIVE_SERVICES_PER_USER = 10
+
+export const requestCreateSchema = z.object({
+  requesterCharName: z.string().trim().min(1).max(40),
+  notes: z.string().trim().max(500).optional(),
+})
+
+export const REQUEST_TRANSITIONS = ['accept', 'decline', 'complete', 'cancel'] as const
+export type RequestTransition = (typeof REQUEST_TRANSITIONS)[number]
+
+export const requestPatchSchema = z.object({
+  action: z.enum(REQUEST_TRANSITIONS),
+})
+
+export const requestListQuerySchema = z.object({
+  status: z.enum(['pending', 'accepted', 'declined', 'completed', 'cancelled']).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(50).default(20),
+})
+
+export const MAX_OPEN_REQUESTS_PER_USER = 30
