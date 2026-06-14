@@ -98,6 +98,18 @@ export const rateSchema = z.object({
   stars: z.number().int().min(1).max(5),
 })
 
+export const reportSchema = z.object({
+  reason: z.string().trim().min(3).max(300),
+})
+
+export const REPORT_REASONS = [
+  'rmt',
+  'scam',
+  'harassment',
+  'misleading',
+  'other',
+] as const
+
 export const eventsQuerySchema = z.object({
   since: z.coerce.number().int().min(0).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),

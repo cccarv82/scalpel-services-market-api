@@ -72,6 +72,32 @@ export async function GET(_req: Request, ctx: Ctx) {
     .orderBy(desc(schema.services.createdAt))
     .limit(5)
 
+  const ratingBreakdownRows = await db
+    .select({
+      stars: schema.ratings.stars,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(schema.ratings)
+    .where(eq(schema.ratings.rateeId, id))
+    .groupBy(schema.ratings.stars)
+
+  const breakdown: Record<1 | 2 | 3 | 4 | 5, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  for (const r of ratingBreakdownRows) {
+    if (r.stars >= 1 && r.stars <= 5) breakdown[r.stars as 1 | 2 | 3 | 4 | 5] = r.count
+  }
+
+  const recentRatings = await db
+    .select({
+      id: schema.ratings.id,
+      stars: schema.ratings.stars,
+      role: schema.ratings.role,
+      createdAt: schema.ratings.createdAt,
+    })
+    .from(schema.ratings)
+    .where(eq(schema.ratings.rateeId, id))
+    .orderBy(desc(schema.ratings.createdAt))
+    .limit(10)
+
   void inArray
 
   return NextResponse.json({
@@ -83,8 +109,9 @@ export async function GET(_req: Request, ctx: Ctx) {
       poeVersion: user.poeVersion,
       createdAt: user.createdAt,
     },
-    rating: { average: avg, count: total },
+    rating: { average: avg, count: total, breakdown },
     stats: { activeServices, completedJobs },
     activeServices: recent,
+    recentRatings,
   })
 }

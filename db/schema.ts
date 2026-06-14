@@ -168,6 +168,23 @@ export const sessions = pgTable(
   }),
 )
 
+export const REPORT_FLAG_THRESHOLD = 3
+
+export const reports = pgTable(
+  'reports',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    serviceId: uuid('service_id').notNull().references(() => services.id, { onDelete: 'cascade' }),
+    reporterId: uuid('reporter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    reason: text('reason').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniqueIdx: uniqueIndex('reports_service_reporter_uq').on(t.serviceId, t.reporterId),
+    serviceIdx: index('reports_service_idx').on(t.serviceId),
+  }),
+)
+
 export const deviceCodes = pgTable(
   'device_codes',
   {
