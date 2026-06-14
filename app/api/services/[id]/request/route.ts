@@ -40,7 +40,13 @@ export async function POST(req: Request, ctx: Ctx) {
   if (svc[0].flagged) return NextResponse.json({ error: 'service unavailable' }, { status: 410 })
   if (!svc[0].active) return NextResponse.json({ error: 'service inactive' }, { status: 410 })
   if (svc[0].userId === auth.id) {
-    return NextResponse.json({ error: 'cannot request own service' }, { status: 400 })
+    const allow = (process.env.ALLOW_SELF_REQUEST_USER_IDS ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    if (!allow.includes(auth.id)) {
+      return NextResponse.json({ error: 'cannot request own service' }, { status: 400 })
+    }
   }
 
   // Rate limit: max open requests per client across services

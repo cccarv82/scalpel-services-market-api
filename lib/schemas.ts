@@ -72,7 +72,7 @@ export const listQuerySchema = z.object({
   includeInactive: z.coerce.boolean().optional(),
 })
 
-export const MAX_ACTIVE_SERVICES_PER_USER = 10
+export const MAX_ACTIVE_SERVICES_PER_USER = 5
 
 export const requestCreateSchema = z.object({
   requesterCharName: z.string().trim().min(1).max(40),
