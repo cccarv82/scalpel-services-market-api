@@ -25,8 +25,9 @@ export async function GET(req: Request) {
   })
 }
 
+// Display name is intentionally NOT patchable — it mirrors the user's Discord
+// identity and is re-synced on each login so banning by reputation works.
 const patchSchema = z.object({
-  displayName: z.string().trim().min(1).max(80).optional(),
   poeCharName: z.string().trim().min(1).max(40).nullable().optional(),
   defaultLeague: z.string().trim().min(1).max(60).nullable().optional(),
   poeVersion: z.union([z.literal(1), z.literal(2)]).optional(),

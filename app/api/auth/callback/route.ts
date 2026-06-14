@@ -42,7 +42,11 @@ export async function GET(req: Request) {
     if (existing[0].banned) return page('Account banned.', 403)
     await db
       .update(schema.users)
-      .set({ discordUsername: discordUser.username, updatedAt: sql`now()` })
+      .set({
+        discordUsername: discordUser.username,
+        displayName,
+        updatedAt: sql`now()`,
+      })
       .where(eq(schema.users.id, userId))
   } else {
     const inserted = await db
