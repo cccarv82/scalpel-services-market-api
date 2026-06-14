@@ -8,6 +8,13 @@
       "when": 1781404027227,
       "tag": "0000_cuddly_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781444568664,
+      "tag": "0001_majestic_vengeance",
+      "breakpoints": true
     }
   ]
 }

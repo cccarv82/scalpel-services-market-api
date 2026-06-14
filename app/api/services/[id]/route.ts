@@ -27,6 +27,7 @@ export async function GET(_req: Request, ctx: Ctx) {
       priceCurrency: schema.services.priceCurrency,
       priceMin: schema.services.priceMin,
       priceMax: schema.services.priceMax,
+      priceTiers: schema.services.priceTiers,
       tags: schema.services.tags,
       poeVersion: schema.services.poeVersion,
       league: schema.services.league,
@@ -69,8 +70,9 @@ export async function PATCH(req: Request, ctx: Ctx) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   const data = parsed.data
 
-  if (data.title || data.description || data.tags) {
-    const fields = [data.title ?? '', data.description ?? '', ...(data.tags ?? [])]
+  if (data.title || data.description || data.tags || data.priceTiers) {
+    const tierLabels = (data.priceTiers ?? []).map((t) => t.label)
+    const fields = [data.title ?? '', data.description ?? '', ...(data.tags ?? []), ...tierLabels]
     const scan = scanFields(...fields)
     if (!scan.ok) return NextResponse.json({ error: 'rmt_blocked', match: scan.match }, { status: 400 })
   }
@@ -92,6 +94,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
   if (data.priceCurrency !== undefined) update.priceCurrency = data.priceCurrency
   if (data.priceMin !== undefined) update.priceMin = data.priceMin == null ? null : data.priceMin.toString()
   if (data.priceMax !== undefined) update.priceMax = data.priceMax == null ? null : data.priceMax.toString()
+  if (data.priceTiers !== undefined) update.priceTiers = data.priceTiers
   if (data.tags !== undefined) update.tags = data.tags
   if (data.poeVersion !== undefined) update.poeVersion = data.poeVersion
   if (data.league !== undefined) update.league = data.league

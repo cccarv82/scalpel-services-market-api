@@ -19,6 +19,7 @@ export const serviceCategoryEnum = pgEnum('service_category', [
   'map_hosting',
   'trial_carry',
   'ascendancy_carry',
+  'campaign_carry',
   'other',
 ])
 
@@ -82,6 +83,7 @@ export const services = pgTable(
     priceCurrency: priceCurrencyEnum('price_currency').notNull(),
     priceMin: numeric('price_min', { precision: 12, scale: 2 }),
     priceMax: numeric('price_max', { precision: 12, scale: 2 }),
+    priceTiers: jsonb('price_tiers').notNull().default([]),
     tags: text('tags').array().notNull().default([]),
     poeVersion: smallint('poe_version').notNull(),
     league: text('league').notNull(),

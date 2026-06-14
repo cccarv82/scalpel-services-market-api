@@ -7,8 +7,16 @@ export const SERVICE_CATEGORIES = [
   'map_hosting',
   'trial_carry',
   'ascendancy_carry',
+  'campaign_carry',
   'other',
 ] as const
+
+export const priceTierSchema = z.object({
+  label: z.string().trim().min(1).max(60),
+  price: z.number().nonnegative(),
+})
+
+export const priceTiersSchema = z.array(priceTierSchema).max(8)
 
 export const PRICE_CURRENCIES = ['chaos', 'divine', 'exalted', 'mirror', 'free_for_vouch'] as const
 
@@ -22,14 +30,17 @@ export const serviceCreateSchema = z
     priceCurrency: z.enum(PRICE_CURRENCIES),
     priceMin: z.number().nonnegative().nullable().optional(),
     priceMax: z.number().nonnegative().nullable().optional(),
+    priceTiers: priceTiersSchema.optional(),
     tags: z.array(z.string().trim().min(1).max(24)).max(6).default([]),
     poeVersion: z.union([z.literal(1), z.literal(2)]),
     league: z.string().trim().min(1).max(60),
   })
   .superRefine((v, ctx) => {
     if (v.priceCurrency === 'free_for_vouch') return
+    const hasTiers = (v.priceTiers?.length ?? 0) > 0
+    if (hasTiers) return
     if (v.priceMin == null && v.priceMax == null) {
-      ctx.addIssue({ code: 'custom', message: 'priceMin or priceMax required unless free_for_vouch', path: ['priceMin'] })
+      ctx.addIssue({ code: 'custom', message: 'priceMin/priceMax or priceTiers required unless free_for_vouch', path: ['priceMin'] })
     }
     if (v.priceMin != null && v.priceMax != null && v.priceMin > v.priceMax) {
       ctx.addIssue({ code: 'custom', message: 'priceMin > priceMax', path: ['priceMin'] })
@@ -43,6 +54,7 @@ export const serviceUpdateSchema = z.object({
   priceCurrency: z.enum(PRICE_CURRENCIES).optional(),
   priceMin: z.number().nonnegative().nullable().optional(),
   priceMax: z.number().nonnegative().nullable().optional(),
+  priceTiers: priceTiersSchema.optional(),
   tags: z.array(z.string().trim().min(1).max(24)).max(6).optional(),
   poeVersion: z.union([z.literal(1), z.literal(2)]).optional(),
   league: z.string().trim().min(1).max(60).optional(),

@@ -45,6 +45,7 @@ export async function GET(req: Request) {
       priceCurrency: schema.services.priceCurrency,
       priceMin: schema.services.priceMin,
       priceMax: schema.services.priceMax,
+      priceTiers: schema.services.priceTiers,
       tags: schema.services.tags,
       poeVersion: schema.services.poeVersion,
       league: schema.services.league,
@@ -85,7 +86,8 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   const data = parsed.data
 
-  const scan = scanFields(data.title, data.description, ...data.tags)
+  const tierLabels = (data.priceTiers ?? []).map((t) => t.label)
+  const scan = scanFields(data.title, data.description, ...data.tags, ...tierLabels)
   if (!scan.ok) return NextResponse.json({ error: 'rmt_blocked', match: scan.match }, { status: 400 })
 
   const [{ activeCount }] = await db
@@ -110,6 +112,7 @@ export async function POST(req: Request) {
       priceCurrency: data.priceCurrency,
       priceMin: data.priceMin != null ? data.priceMin.toString() : null,
       priceMax: data.priceMax != null ? data.priceMax.toString() : null,
+      priceTiers: data.priceTiers ?? [],
       tags: data.tags,
       poeVersion: data.poeVersion,
       league: data.league,
